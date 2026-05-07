@@ -702,7 +702,7 @@ MonoBehaviour:
     checkpointValue: 1
     spawnPoint: {x: -10, y: 1, z: 12}
     spawnRotation: {x: 0, y: 35, z: 0}
-    isExpanded: 1
+    isExpanded: 0
     scenesToLoad:
     - sceneName: Level 1
       sceneAsset: {fileID: 102900000, guid: ae9830d6fc4d0ff4abc600a091fa4ebe, type: 3}
@@ -713,7 +713,7 @@ MonoBehaviour:
     checkpointValue: 2
     spawnPoint: {x: 8, y: 3, z: -2}
     spawnRotation: {x: 0, y: -12, z: 0}
-    isExpanded: 1
+    isExpanded: 0
     scenesToLoad:
     - sceneName: Level 3
       sceneAsset: {fileID: 102900000, guid: 1d2788c23d277fc46a32876cd59fbfc7, type: 3}
@@ -726,7 +726,7 @@ MonoBehaviour:
     checkpointValue: 3
     spawnPoint: {x: 9, y: 5, z: 7}
     spawnRotation: {x: 0, y: 8, z: 0}
-    isExpanded: 1
+    isExpanded: 0
     scenesToLoad:
     - sceneName: Level 5
       sceneAsset: {fileID: 102900000, guid: a0b0d03c43203da459f56a05db44ae8a, type: 3}

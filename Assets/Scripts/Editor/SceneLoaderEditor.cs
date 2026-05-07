@@ -34,8 +34,6 @@ public class SceneLoaderEditor : Editor
     private GUIStyle _headerCount;
     private GUIStyle _entryFoldout;
     private GUIStyle _subHeaderLabel;
-    private GUIStyle _footerButton;
-    private GUIStyle _removeButton;
     private GUIStyle _warningLabel;
 
     private void EnsureStyles()
@@ -72,24 +70,6 @@ public class SceneLoaderEditor : Editor
             fontSize = 10,
             fontStyle = FontStyle.Normal,
             normal = { textColor = new Color(0.70f, 0.70f, 0.70f, 1f) }
-        };
-
-        _footerButton = new GUIStyle(EditorStyles.miniButton)
-        {
-            fontSize = 12,
-            fontStyle = FontStyle.Bold,
-            padding = new RectOffset(0, 0, 0, 0),
-            alignment = TextAnchor.MiddleCenter,
-            normal = { textColor = new Color(0.75f, 0.75f, 0.75f, 1f) }
-        };
-
-        _removeButton = new GUIStyle(EditorStyles.miniButton)
-        {
-            fontSize = 12,
-            fontStyle = FontStyle.Bold,
-            padding = new RectOffset(0, 0, 0, 0),
-            alignment = TextAnchor.MiddleCenter,
-            normal = { textColor = new Color(0.75f, 0.75f, 0.75f, 1f) }
         };
 
         _warningLabel = new GUIStyle(EditorStyles.miniLabel)
@@ -140,7 +120,7 @@ public class SceneLoaderEditor : Editor
 
         // ── Levels ───────────────────────────────────────────────────────────
         SerializedProperty levelsProp = serializedObject.FindProperty("levels");
-        DrawSectionHeader("Events To Act", levelsProp.arraySize);
+        DrawSectionHeader("Checkpoint Events", levelsProp.arraySize);
         EditorGUILayout.Space(2);
 
         for (int i = 0; i < levelsProp.arraySize; i++)
@@ -204,14 +184,13 @@ public class SceneLoaderEditor : Editor
             _entryFoldout
         );
 
-        // "Checkpoint: N" right-aligned before the remove button
         GUI.Label(
-            new Rect(hdr.xMax - 110, hdr.y + 4, 82, 15),
+            new Rect(hdr.xMax - 104, hdr.y + 4, 82, 15),
             $"Checkpoint: {checkpointProp.intValue}",
             _headerCount
         );
 
-        if (GUI.Button(new Rect(hdr.xMax - 24, hdr.y + 3, 18, 16), "─", _removeButton))
+        if (DrawFlatButton(new Rect(hdr.xMax - 18, hdr.y + 3, 18, 16), "-"))
         {
             parentList.DeleteArrayElementAtIndex(index);
             return;
@@ -221,35 +200,31 @@ public class SceneLoaderEditor : Editor
 
         // ── Field rows ───────────────────────────────────────────────────────
 
-        // Title
         DrawFieldRow(0, "Title", (valueRect) =>
         {
             titleProp.stringValue = EditorGUI.TextField(valueRect, titleProp.stringValue);
         }, rowHeight: 24);
 
-        // Checkpoint
         DrawFieldRow(1, "Checkpoint", (valueRect) =>
         {
             checkpointProp.intValue = EditorGUI.IntField(valueRect, checkpointProp.intValue);
         }, rowHeight: 24);
 
-        // Spawn Point
         DrawFieldRow(2, "Spawn Point", (valueRect) =>
         {
             spawnPointProp.vector3Value = EditorGUI.Vector3Field(valueRect, GUIContent.none, spawnPointProp.vector3Value);
         }, rowHeight: 24);
 
-        // Spawn Rotation
         DrawFieldRow(3, "Spawn Rotation", (valueRect) =>
         {
             spawnRotationProp.vector3Value = EditorGUI.Vector3Field(valueRect, GUIContent.none, spawnRotationProp.vector3Value);
         }, rowHeight: 24);
 
-        EditorGUILayout.Space(4);
+        EditorGUILayout.Space(10);
 
         // ── Sub-lists ────────────────────────────────────────────────────────
         DrawSceneSubList(loadListProp, "Load Scenes ()");
-        EditorGUILayout.Space(2);
+        EditorGUILayout.Space(5);
         DrawSceneSubList(levelPersistentProp, "Persistent Scenes ()", accentColor: PersistentAccent);
         EditorGUILayout.Space(4);
     }
@@ -325,7 +300,7 @@ public class SceneLoaderEditor : Editor
                 sceneNameP.stringValue = newAsset != null ? newAsset.name : "";
             }
 
-            if (GUI.Button(new Rect(row.xMax - 24, row.y + 3, 18, 16), "─", _removeButton))
+            if (DrawFlatButton(new Rect(row.xMax - 25, row.y + 3, 20, 18), "-"))
             {
                 listProp.DeleteArrayElementAtIndex(i);
                 break;
@@ -335,11 +310,11 @@ public class SceneLoaderEditor : Editor
             SceneAsset current = sceneAssetP.objectReferenceValue as SceneAsset;
             if (current != null && !IsInBuildSettings(current))
             {
-                Rect wRow = GUILayoutUtility.GetRect(0, 18, GUILayout.ExpandWidth(true));
+                Rect wRow = GUILayoutUtility.GetRect(0, 22, GUILayout.ExpandWidth(true));
                 if (Event.current.type == EventType.Repaint)
                     EditorGUI.DrawRect(wRow, i % 2 == 0 ? RowOddBg : RowEvenBg);
                 GUI.Label(
-                    new Rect(wRow.x + 10, wRow.y + 2, wRow.width - 50, 14),
+                    new Rect(wRow.x + 10, wRow.y + 2, wRow.width - 50, 17),
                     "⚠  Not in Build Settings",
                     _warningLabel
                 );
@@ -348,7 +323,7 @@ public class SceneLoaderEditor : Editor
             }
         }
 
-        // Footer with + / −
+        // Footer with + / - flat buttons
         Rect footer = GUILayoutUtility.GetRect(0, 20, GUILayout.ExpandWidth(true));
         if (Event.current.type == EventType.Repaint)
         {
@@ -356,7 +331,7 @@ public class SceneLoaderEditor : Editor
             EditorGUI.DrawRect(new Rect(footer.x, footer.y, footer.width, 1), DividerColor);
         }
 
-        if (GUI.Button(new Rect(footer.xMax - 42, footer.y + 2, 18, 16), "+", _footerButton))
+        if (DrawFlatButton(new Rect(footer.xMax - 47, footer.y + 4, 20, 18), "+"))
         {
             listProp.arraySize++;
             var e = listProp.GetArrayElementAtIndex(listProp.arraySize - 1);
@@ -365,34 +340,82 @@ public class SceneLoaderEditor : Editor
         }
 
         GUI.enabled = listProp.arraySize > 0;
-        if (GUI.Button(new Rect(footer.xMax - 22, footer.y + 2, 18, 16), "─", _footerButton))
+        if (DrawFlatButton(new Rect(footer.xMax - 25, footer.y + 4, 20, 18), "-"))
             listProp.DeleteArrayElementAtIndex(listProp.arraySize - 1);
         GUI.enabled = true;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    //  Global Footer
+    //  Global Footer  —  "Add" / "Remove" flat buttons
     // ─────────────────────────────────────────────────────────────────────────
 
     private void DrawGlobalFooter(SerializedProperty levelsProp)
     {
-        Rect footer = GUILayoutUtility.GetRect(0, 20, GUILayout.ExpandWidth(true));
+        // Claude.ai changed - Switched to DrawFlatButton so height is fully respected.
+        Rect footer = GUILayoutUtility.GetRect(0, 28, GUILayout.ExpandWidth(true));
         if (Event.current.type == EventType.Repaint)
         {
             EditorGUI.DrawRect(footer, FooterBg);
             EditorGUI.DrawRect(new Rect(footer.x, footer.y, footer.width, 1), DividerColor);
         }
 
-        if (GUI.Button(new Rect(footer.xMax - 42, footer.y + 2, 18, 16), "+", _footerButton))
+        if (DrawFlatButton(new Rect(footer.xMax - 164, footer.y + 4, 80, 30), "Add"))
         {
             levelsProp.arraySize++;
             InitLevel(levelsProp.GetArrayElementAtIndex(levelsProp.arraySize - 1), levelsProp.arraySize);
         }
 
         GUI.enabled = levelsProp.arraySize > 0;
-        if (GUI.Button(new Rect(footer.xMax - 22, footer.y + 2, 18, 16), "─", _footerButton))
+        if (DrawFlatButton(new Rect(footer.xMax - 80, footer.y + 4, 80, 30), "Remove"))
             levelsProp.DeleteArrayElementAtIndex(levelsProp.arraySize - 1);
         GUI.enabled = true;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  Flat Button  —  fully manual draw, no inherited style padding
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Claude.ai changed - Draws a flat button using raw rects so height and
+    /// text centering are not affected by EditorStyles.miniButton padding.
+    /// </summary>
+    private bool DrawFlatButton(Rect rect, string text)
+    {
+        bool pressed = false;
+
+        if (Event.current.type == EventType.Repaint)
+        {
+            Color bg = rect.Contains(Event.current.mousePosition)
+                ? new Color(0.38f, 0.38f, 0.38f, 1f)
+                : new Color(0.30f, 0.30f, 0.30f, 1f);
+
+            EditorGUI.DrawRect(rect, bg);
+
+            // Border
+            Color border = new Color(0.12f, 0.12f, 0.12f, 1f);
+            EditorGUI.DrawRect(new Rect(rect.x, rect.y, rect.width, 1), border);
+            EditorGUI.DrawRect(new Rect(rect.x, rect.yMax - 1, rect.width, 1), border);
+            EditorGUI.DrawRect(new Rect(rect.x, rect.y, 1, rect.height), border);
+            EditorGUI.DrawRect(new Rect(rect.xMax - 1, rect.y, 1, rect.height), border);
+
+            // Centred label — adjust fontSize to resize glyph, rect.y offset to nudge vertically
+            GUIStyle centred = new GUIStyle(EditorStyles.miniLabel)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontStyle = FontStyle.Bold,
+                fontSize = 12,
+                normal = { textColor = new Color(0.80f, 0.80f, 0.80f, 1f) }
+            };
+            GUI.Label(new Rect(rect.x, rect.y - 1.5f, rect.width, rect.height), text, centred);
+        }
+
+        if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
+        {
+            pressed = true;
+            Event.current.Use();
+        }
+
+        return pressed;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
